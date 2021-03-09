@@ -3,6 +3,7 @@
 The GitHub Actions for pushing to GitHub repository local changes authorizing using GitHub token.
 
 With ease:
+
 - update new code placed in the repository, e.g. by running a linter on it,
 - track changes in script results using Git as archive,
 - publish page using GitHub-Pages,
@@ -19,19 +20,23 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v2
+      with:
+        persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
+        fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
     - name: Create local changes
       run: |
         ...
     - name: Commit files
       run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
+        git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
         git commit -m "Add changes" -a
     - name: Push changes
       uses: alice-biometrics/github-push-action@master
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.ref }}
 ```
 
 ### Inputs
@@ -39,7 +44,7 @@ jobs:
 | name | value | default | description |
 | ---- | ----- | ------- | ----------- |
 | github_token | string | | Token for the repo. Can be passed in using `${{ secrets.GITHUB_TOKEN }}`. |
-| branch | string | 'master' | Destination branch to push changes. |
+| branch | string | (default) | Destination branch to push changes. Can be passed in using `${{ github.ref }}`. |
 | force | boolean | false | Determines if force push is used. |
 | tags | boolean | false | Determines if `--tags` is used. |
 | directory | string | '.' | Directory to change to before pushing. |
